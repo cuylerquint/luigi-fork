@@ -216,7 +216,7 @@ class QuerySalesforce(Task):
         if self.content_type.lower() == 'csv':
             for i, result_id in enumerate(result_ids):
                 with open("%s.%d" % (self.output().path, i), 'r') as f:
-                    header = f.readline()
+                    header = f.readline(5_000_000)
                     if i == 0:
                         outfile.write(header)
                     for line in f:
