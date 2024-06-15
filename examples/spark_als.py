@@ -15,12 +15,12 @@
 # limitations under the License.
 #
 
-import random
 
 import luigi
 import luigi.format
 import luigi.contrib.hdfs
 from luigi.contrib.spark import SparkSubmitTask
+import secrets
 
 
 class UserItemMatrix(luigi.Task):
@@ -42,7 +42,7 @@ class UserItemMatrix(luigi.Task):
         """
         w = self.output().open('w')
         for user in range(self.data_size):
-            track = int(random.random() * self.data_size)
+            track = int(secrets.SystemRandom().random() * self.data_size)
             w.write('%d\\%d\\%f' % (user, track, 1.0))
         w.close()
 

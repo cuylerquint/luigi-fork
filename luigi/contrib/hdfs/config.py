@@ -19,14 +19,13 @@
 You can configure what client by setting the "client" config under the "hdfs" section in the configuration, or using the ``--hdfs-client`` command line option.
 "hadoopcli" is the slowest, but should work out of the box.
 """
-
-import random
 import luigi
 import luigi.configuration
 import os
 import getpass
 
 from urllib.parse import urlparse, urlunparse
+import secrets
 
 
 class hdfs(luigi.Config):
@@ -84,7 +83,7 @@ def tmppath(path=None, include_unix_username=True):
 
     Note that include_unix_username might work on windows too.
     """
-    addon = "luigitemp-%09d" % random.randrange(0, 10_000_000_000)
+    addon = "luigitemp-%09d" % secrets.SystemRandom().randrange(0, 10_000_000_000)
     temp_dir = '/tmp'  # default tmp dir if none is specified in config
 
     # 1. Figure out to which temporary directory to place
