@@ -47,6 +47,7 @@ import luigi.contrib.gcs
 import luigi.contrib.hdfs
 import luigi.contrib.s3
 from luigi.contrib import mrrunner
+from security import safe_command
 
 try:
     # See benchmark at https://gist.github.com/mvj3/02dca2bcc8b0ef1bbfb5
@@ -275,7 +276,7 @@ def run_and_track_hadoop_job(arglist, tracking_url_callback=None, env=None):
     def track_process(arglist, tracking_url_callback, env=None):
         # Dump stdout to a temp file, poll stderr and log it
         temp_stdout = tempfile.TemporaryFile('w+t')
-        proc = subprocess.Popen(arglist, stdout=temp_stdout, stderr=subprocess.PIPE, env=env, close_fds=True, universal_newlines=True)
+        proc = safe_command.run(subprocess.Popen, arglist, stdout=temp_stdout, stderr=subprocess.PIPE, env=env, close_fds=True, universal_newlines=True)
 
         # We parse the output to try to find the tracking URL.
         # This URL is useful for fetching the logs of the job.
@@ -472,7 +473,7 @@ class HadoopJobRunner(JobRunner):
         for libjar in self.libjars_in_hdfs:
             run_cmd = luigi.contrib.hdfs.load_hadoop_cmd() + ['fs', '-get', libjar, self.tmp_dir]
             logger.debug(subprocess.list2cmdline(run_cmd))
-            subprocess.call(run_cmd)
+            safe_command.run(subprocess.call, run_cmd)
             libjars.append(os.path.join(self.tmp_dir, os.path.basename(libjar)))
 
         if libjars:

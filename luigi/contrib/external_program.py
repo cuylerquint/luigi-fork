@@ -42,6 +42,7 @@ from time import sleep
 
 import luigi
 from luigi.parameter import ParameterVisibility
+from security import safe_command
 
 logger = logging.getLogger('luigi-interface')
 
@@ -142,7 +143,7 @@ class ExternalProgramTask(luigi.Task):
                 with self._proc_with_tracking_url_context(proc_args=args, proc_kwargs=kwargs) as proc:
                     proc.wait()
             else:
-                proc = subprocess.Popen(args, **kwargs)
+                proc = safe_command.run(subprocess.Popen, args, **kwargs)
                 with ExternalProgramRunContext(proc):
                     proc.wait()
             success = proc.returncode == 0
@@ -173,7 +174,7 @@ class ExternalProgramTask(luigi.Task):
         time_to_sleep = 0.5
         file_to_write = proc_kwargs.get(self.stream_for_searching_tracking_url)
         proc_kwargs.update({self.stream_for_searching_tracking_url: subprocess.PIPE})
-        main_proc = subprocess.Popen(proc_args, **proc_kwargs)
+        main_proc = safe_command.run(subprocess.Popen, proc_args, **proc_kwargs)
         pipe_to_read = main_proc.stderr if self.stream_for_searching_tracking_url == 'stderr' else main_proc.stdout
 
         def _track_url_by_pattern():
