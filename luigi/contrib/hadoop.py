@@ -29,7 +29,6 @@ import hashlib
 import logging
 import os
 import pickle
-import random
 import re
 import shutil
 import signal
@@ -47,6 +46,7 @@ import luigi.contrib.gcs
 import luigi.contrib.hdfs
 import luigi.contrib.s3
 from luigi.contrib import mrrunner
+import secrets
 
 try:
     # See benchmark at https://gist.github.com/mvj3/02dca2bcc8b0ef1bbfb5
@@ -362,7 +362,7 @@ def fetch_task_failures(tracking_url):
     b = mechanize.Browser()
     b.open(failures_url, timeout=timeout)
     links = list(b.links(text_regex='Last 4KB'))  # For some reason text_regex='All' doesn't work... no idea why
-    links = random.sample(links, min(10, len(links)))  # Fetch a random subset of all failed tasks, so not to be biased towards the early fails
+    links = secrets.SystemRandom().sample(links, min(10, len(links)))  # Fetch a random subset of all failed tasks, so not to be biased towards the early fails
     error_text = []
     for link in links:
         task_url = link.url.replace('&start=-4097', '&start=-100000')  # Increase the offset
@@ -434,7 +434,7 @@ class HadoopJobRunner(JobRunner):
                           " environment variable if you wish"
                           " to control where luigi.contrib.hadoop may"
                           " create temporary files and directories.")
-            self.tmp_dir = os.path.join(base_tmp_dir, 'hadoop_job_%016x' % random.getrandbits(64))
+            self.tmp_dir = os.path.join(base_tmp_dir, 'hadoop_job_%016x' % secrets.SystemRandom().getrandbits(64))
             os.makedirs(self.tmp_dir)
         else:
             self.tmp_dir = tempfile.mkdtemp()
@@ -496,7 +496,7 @@ class HadoopJobRunner(JobRunner):
 
         files = []
         for src, dst in extra_files:
-            dst_tmp = '%s_%09d' % (dst.replace('/', '_'), random.randint(0, 999999999))
+            dst_tmp = '%s_%09d' % (dst.replace('/', '_'), secrets.SystemRandom().randint(0, 999999999))
             files += ['%s#%s' % (src, dst_tmp)]
             # -files doesn't support subdirectories, so we need to create the dst_tmp -> dst manually
             job.add_link(dst_tmp, dst)
