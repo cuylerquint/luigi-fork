@@ -31,6 +31,7 @@ import datetime
 import os
 import re
 import warnings
+from security import safe_command
 
 logger = logging.getLogger('luigi-interface')
 
@@ -61,7 +62,7 @@ class HdfsClient(hdfs_abstract_client.HdfsFileSystem):
 
     @staticmethod
     def call_check(command):
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True, universal_newlines=True)
+        p = safe_command.run(subprocess.Popen, command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True, universal_newlines=True)
         stdout, stderr = p.communicate()
         if p.returncode != 0:
             raise hdfs_error.HDFSCliError(command, p.returncode, stdout, stderr)
@@ -74,7 +75,7 @@ class HdfsClient(hdfs_abstract_client.HdfsFileSystem):
 
         cmd = load_hadoop_cmd() + ['fs', '-stat', path]
         logger.debug('Running file existence check: %s', subprocess.list2cmdline(cmd))
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True, universal_newlines=True)
+        p = safe_command.run(subprocess.Popen, cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True, universal_newlines=True)
         stdout, stderr = p.communicate()
         if p.returncode == 0:
             return True
@@ -257,7 +258,7 @@ class HdfsClientApache1(HdfsClientCdh3):
 
     def exists(self, path):
         cmd = load_hadoop_cmd() + ['fs', '-test', '-e', path]
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
+        p = safe_command.run(subprocess.Popen, cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
         stdout, stderr = p.communicate()
         if p.returncode == 0:
             return True
