@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import random
 from collections import defaultdict
 from heapq import nlargest
 
@@ -23,6 +22,7 @@ import luigi
 import luigi.contrib.hdfs
 import luigi.contrib.postgres
 import luigi.contrib.spark
+import secrets
 
 
 class ExternalStreams(luigi.ExternalTask):
@@ -58,9 +58,9 @@ class Streams(luigi.Task):
         with self.output().open('w') as output:
             for _ in range(1000):
                 output.write('{} {} {}\n'.format(
-                    random.randint(0, 999),
-                    random.randint(0, 999),
-                    random.randint(0, 999)))
+                    secrets.SystemRandom().randint(0, 999),
+                    secrets.SystemRandom().randint(0, 999),
+                    secrets.SystemRandom().randint(0, 999)))
 
     def output(self):
         """

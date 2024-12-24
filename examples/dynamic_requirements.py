@@ -16,10 +16,10 @@
 #
 
 import os
-import random as rnd
 import time
 
 import luigi
+import secrets
 
 
 class Configuration(luigi.Task):
@@ -37,10 +37,10 @@ class Configuration(luigi.Task):
 
     def run(self):
         time.sleep(5)
-        rnd.seed(self.seed)
+        secrets.SystemRandom().seed(self.seed)
 
         result = ','.join(
-            [str(x) for x in rnd.sample(list(range(300)), rnd.randint(7, 25))])
+            [str(x) for x in secrets.SystemRandom().sample(list(range(300)), secrets.SystemRandom().randint(7, 25))])
         with self.output().open('w') as f:
             f.write(result)
 

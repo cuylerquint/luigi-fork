@@ -94,12 +94,12 @@ import subprocess
 import time
 import sys
 import logging
-import random
 import pickle
 
 import luigi
 from luigi.contrib.hadoop import create_packages_archive
 from luigi.contrib import sge_runner
+import secrets
 
 logger = logging.getLogger('luigi-interface')
 logger.propagate = 0
@@ -229,7 +229,7 @@ class SGEJobTask(luigi.Task):
 
         # Set up temp folder in shared directory (trim to max filename length)
         base_tmp_dir = self.shared_tmp_dir
-        random_id = '%016x' % random.getrandbits(64)
+        random_id = '%016x' % secrets.SystemRandom().getrandbits(64)
         folder_name = self.task_id + '-' + random_id
         self.tmp_dir = os.path.join(base_tmp_dir, folder_name)
         max_filename_length = os.fstatvfs(0).f_namemax
