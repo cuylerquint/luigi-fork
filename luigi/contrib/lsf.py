@@ -25,6 +25,8 @@ import sys
 import logging
 import random
 import shutil
+from security import safe_command
+
 try:
     # Dill is used for handling pickling and unpickling if there is a deference
     # in server setups between the LSF submission node and the nodes in the
@@ -82,8 +84,7 @@ def track_job(job_id):
     based on the LSF documentation
     """
     cmd = "bjobs -noheader -o stat {}".format(job_id)
-    track_job_proc = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, shell=True)
+    track_job_proc = safe_command.run(subprocess.Popen, cmd, stdout=subprocess.PIPE, shell=True)
     status = track_job_proc.communicate()[0].strip('\n')
     return status
 
@@ -251,8 +252,7 @@ class LSFJobTask(luigi.Task):
                     " ".join([str(a) for a in args]))
 
         # Submit the job
-        run_job_proc = subprocess.Popen(
-            [str(a) for a in args],
+        run_job_proc = safe_command.run(subprocess.Popen, [str(a) for a in args],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=self.tmp_dir)
         output = run_job_proc.communicate()[0]
 
