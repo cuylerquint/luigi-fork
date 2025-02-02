@@ -18,7 +18,6 @@ import time
 import abc
 import logging
 import warnings
-import xml.etree.ElementTree as ET
 from collections import OrderedDict
 import re
 import csv
@@ -27,6 +26,7 @@ from urllib.parse import urlsplit
 
 import luigi
 from luigi import Task
+import defusedxml.ElementTree
 
 logger = logging.getLogger('luigi-interface')
 
@@ -262,7 +262,7 @@ class SalesforceAPI:
                                  data=self._get_login_xml())
         response.raise_for_status()
 
-        root = ET.fromstring(response.text)
+        root = defusedxml.ElementTree.fromstring(response.text)
         for e in root.iter("%ssessionId" % self.SOAP_NS):
             if self.session_id:
                 raise Exception("Invalid login attempt.  Multiple session ids found.")
@@ -406,7 +406,7 @@ class SalesforceAPI:
                                  data=self._get_create_job_xml(operation, obj, external_id_field_name, content_type))
         response.raise_for_status()
 
-        root = ET.fromstring(response.text)
+        root = defusedxml.ElementTree.fromstring(response.text)
         job_id = root.find('%sid' % self.API_NS).text
         return job_id
 
@@ -479,7 +479,7 @@ class SalesforceAPI:
                                  data=data)
         response.raise_for_status()
 
-        root = ET.fromstring(response.text)
+        root = defusedxml.ElementTree.fromstring(response.text)
         batch_id = root.find('%sid' % self.API_NS).text
         return batch_id
 
@@ -525,7 +525,7 @@ class SalesforceAPI:
                                 headers=self._get_batch_info_headers())
         response.raise_for_status()
 
-        root = ET.fromstring(response.text)
+        root = defusedxml.ElementTree.fromstring(response.text)
         result_ids = [r.text for r in root.findall('%sresult' % self.API_NS)]
 
         return result_ids
@@ -549,7 +549,7 @@ class SalesforceAPI:
                                 headers=self._get_batch_info_headers())
         response.raise_for_status()
 
-        root = ET.fromstring(response.text)
+        root = defusedxml.ElementTree.fromstring(response.text)
 
         result = {
             "state": root.find('%sstate' % self.API_NS).text,
