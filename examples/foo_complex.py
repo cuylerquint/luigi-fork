@@ -24,9 +24,9 @@ You can run this example like this:
 
 """
 import time
-import random
 
 import luigi
+import secrets
 
 max_depth = 10
 max_total_nodes = 50
@@ -59,7 +59,7 @@ class Bar(luigi.Task):
         global current_nodes
 
         if max_total_nodes > current_nodes:
-            valor = int(random.uniform(1, 30))
+            valor = int(secrets.SystemRandom().uniform(1, 30))
             for i in range(valor // max_depth):
                 current_nodes += 1
                 yield Bar(current_nodes)

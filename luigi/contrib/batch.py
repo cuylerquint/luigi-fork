@@ -61,11 +61,12 @@ Written and maintained by Jake Feala (@jfeala) for Outlier Bio (@outlierbio)
 
 import json
 import logging
-import random
 import string
 import time
 
 import luigi
+import secrets
+
 logger = logging.getLogger(__name__)
 
 try:
@@ -82,7 +83,7 @@ POLL_TIME = 10
 
 
 def _random_id():
-    return 'batch-job-' + ''.join(random.sample(string.ascii_lowercase, 8))
+    return 'batch-job-' + ''.join(secrets.SystemRandom().sample(string.ascii_lowercase, 8))
 
 
 class BatchClient:

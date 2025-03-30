@@ -20,7 +20,6 @@
 """
 
 import os
-import random
 import shutil
 import tempfile
 import io
@@ -29,6 +28,7 @@ import errno
 
 from luigi.format import FileWrapper, get_default_format
 from luigi.target import FileAlreadyExists, MissingParentDirectory, NotADirectory, FileSystem, FileSystemTarget, AtomicLocalFile
+import secrets
 
 
 class atomic_file(AtomicLocalFile):
@@ -40,7 +40,7 @@ class atomic_file(AtomicLocalFile):
         os.rename(self.tmp_path, self.path)
 
     def generate_tmp_path(self, path):
-        return path + '-luigi-tmp-%09d' % random.randrange(0, 10_000_000_000)
+        return path + '-luigi-tmp-%09d' % secrets.SystemRandom().randrange(0, 10_000_000_000)
 
 
 class LocalFileSystem(FileSystem):
@@ -112,7 +112,7 @@ class LocalFileSystem(FileSystem):
             os.rename(old_path, new_path)
         except OSError as err:
             if err.errno == errno.EXDEV:
-                new_path_tmp = '%s-%09d' % (new_path, random.randint(0, 999999999))
+                new_path_tmp = '%s-%09d' % (new_path, secrets.SystemRandom().randint(0, 999999999))
                 shutil.copy(old_path, new_path_tmp)
                 os.rename(new_path_tmp, new_path)
                 os.remove(old_path)
@@ -138,7 +138,7 @@ class LocalTarget(FileSystemTarget):
         if not path:
             if not is_tmp:
                 raise Exception('path or is_tmp must be set')
-            path = os.path.join(tempfile.gettempdir(), 'luigi-tmp-%09d' % random.randint(0, 999999999))
+            path = os.path.join(tempfile.gettempdir(), 'luigi-tmp-%09d' % secrets.SystemRandom().randint(0, 999999999))
         super(LocalTarget, self).__init__(path)
         self.format = format
         self.is_tmp = is_tmp

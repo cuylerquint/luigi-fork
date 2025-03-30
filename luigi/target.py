@@ -22,11 +22,11 @@ It is a central concept of Luigi and represents the state of the workflow.
 import abc
 import io
 import os
-import random
 import tempfile
 import logging
 import warnings
 from contextlib import contextmanager
+import secrets
 
 logger = logging.getLogger('luigi-interface')
 
@@ -287,7 +287,7 @@ class FileSystemTarget(Target):
                     with self.output().temporary_path() as self.temp_output_path:
                         run_some_external_command(output_path=self.temp_output_path)
         """
-        num = random.randrange(0, 10_000_000_000)
+        num = secrets.SystemRandom().randrange(0, 10_000_000_000)
         slashless_path = self.path.rstrip('/').rstrip("\\")
         _temp_path = '{}-luigi-tmp-{:010}{}'.format(
             slashless_path,
@@ -331,7 +331,7 @@ class AtomicLocalFile(io.BufferedWriter):
         self.move_to_final_destination()
 
     def generate_tmp_path(self, path):
-        return os.path.join(tempfile.gettempdir(), 'luigi-s3-tmp-%09d' % random.randrange(0, 10_000_000_000))
+        return os.path.join(tempfile.gettempdir(), 'luigi-s3-tmp-%09d' % secrets.SystemRandom().randrange(0, 10_000_000_000))
 
     def move_to_final_destination(self):
         raise NotImplementedError()

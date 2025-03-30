@@ -43,7 +43,6 @@ import contextlib
 import functools
 
 import queue as Queue
-import random
 import socket
 import threading
 import time
@@ -61,6 +60,7 @@ from luigi.task_status import RUNNING
 from luigi.parameter import BoolParameter, FloatParameter, IntParameter, OptionalParameter, Parameter, TimeDeltaParameter
 
 import json
+import secrets
 
 logger = logging.getLogger('luigi-interface')
 
@@ -170,7 +170,7 @@ class TaskProcess(multiprocessing.Process):
             # Need to have different random seeds if running in separate processes
             processID = os.getpid()
             currentTime = time.time()
-            random.seed(processID * currentTime)
+            secrets.SystemRandom().seed(processID * currentTime)
 
         status = FAILED
         expl = ''
@@ -662,7 +662,7 @@ class Worker:
     def _generate_worker_info(self):
         # Generate as much info as possible about the worker
         # Some of these calls might not be available on all OS's
-        args = [('salt', '%09d' % random.randrange(0, 10_000_000_000)),
+        args = [('salt', '%09d' % secrets.SystemRandom().randrange(0, 10_000_000_000)),
                 ('workers', self.worker_processes)]
         try:
             args += [('host', socket.gethostname())]
@@ -1169,7 +1169,7 @@ class Worker:
         # TODO is exponential backoff necessary?
         while True:
             jitter = self._config.wait_jitter
-            wait_interval = self._config.wait_interval + random.uniform(0, jitter)
+            wait_interval = self._config.wait_interval + secrets.SystemRandom().uniform(0, jitter)
             logger.debug('Sleeping for %f seconds', wait_interval)
             time.sleep(wait_interval)
             yield
