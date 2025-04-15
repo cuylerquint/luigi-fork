@@ -24,6 +24,7 @@ import subprocess
 import luigi
 from luigi.contrib import bigquery, gcs
 from luigi.task import MixinNaiveBulkComplete
+from security import safe_command
 
 logger = logging.getLogger('luigi-interface')
 
@@ -135,8 +136,7 @@ class _CmdLineRunner:
     """
     @staticmethod
     def run(cmd, task=None):
-        process = subprocess.Popen(
-            cmd,
+        process = safe_command.run(subprocess.Popen, cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             close_fds=True

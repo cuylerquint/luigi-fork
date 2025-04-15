@@ -33,6 +33,7 @@ import tempfile
 
 import luigi
 from luigi import configuration
+from security import safe_command
 
 logger = logging.getLogger('luigi-interface')
 
@@ -131,7 +132,7 @@ class PigJobTask(luigi.Task):
         for k, v in self.pig_env_vars().items():
             env[k] = v
 
-        proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
+        proc = safe_command.run(subprocess.Popen, cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
         reads = [proc.stderr.fileno(), proc.stdout.fileno()]
         # tracking the possible problems with this job
         err_lines = []

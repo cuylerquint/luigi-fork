@@ -47,6 +47,7 @@ import posixpath
 import luigi
 import luigi.format
 import luigi.target
+from security import safe_command
 
 
 logger = logging.getLogger('luigi-interface')
@@ -118,7 +119,7 @@ class RemoteContext:
         Remote Popen.
         """
         prefixed_cmd = self._prepare_cmd(cmd)
-        return subprocess.Popen(prefixed_cmd, **kwargs)
+        return safe_command.run(subprocess.Popen, prefixed_cmd, **kwargs)
 
     def check_output(self, cmd):
         """
@@ -242,7 +243,7 @@ class RemoteFileSystem(luigi.target.FileSystem):
         if os.path.isdir(src):
             cmd.extend(["-r"])
         cmd.extend([src, dest])
-        p = subprocess.Popen(cmd)
+        p = safe_command.run(subprocess.Popen, cmd)
         output, _ = p.communicate()
         if p.returncode != 0:
             raise subprocess.CalledProcessError(p.returncode, cmd, output=output)
