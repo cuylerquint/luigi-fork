@@ -18,7 +18,6 @@
 import logging
 import ntpath
 import os
-import random
 import tempfile
 import time
 from contextlib import contextmanager
@@ -26,6 +25,7 @@ from functools import wraps
 
 import luigi.format
 from luigi.target import FileSystem, FileSystemTarget, AtomicLocalFile
+import secrets
 
 logger = logging.getLogger('luigi-interface')
 
@@ -308,7 +308,7 @@ class DropboxTarget(FileSystemTarget):
     @contextmanager
     def temporary_path(self):
         tmp_dir = tempfile.mkdtemp()
-        num = random.randrange(0, 10_000_000_000)
+        num = secrets.SystemRandom().randrange(0, 10_000_000_000)
         temp_path = '{}{}luigi-tmp-{:010}{}'.format(
             tmp_dir, os.sep,
             num, ntpath.basename(self.path))

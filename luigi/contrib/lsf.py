@@ -23,8 +23,9 @@ import subprocess
 import time
 import sys
 import logging
-import random
 import shutil
+import secrets
+
 try:
     # Dill is used for handling pickling and unpickling if there is a deference
     # in server setups between the LSF submission node and the nodes in the
@@ -144,7 +145,7 @@ class LSFJobTask(luigi.Task):
 
         base_tmp_dir = self.shared_tmp_dir
 
-        random_id = '%016x' % random.getrandbits(64)
+        random_id = '%016x' % secrets.SystemRandom().getrandbits(64)
         task_name = random_id + self.task_id
         # If any parameters are directories, if we don't
         # replace the separators on *nix, it'll create a weird nested directory

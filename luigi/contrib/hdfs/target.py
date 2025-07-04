@@ -19,13 +19,13 @@ Provides access to HDFS using the :py:class:`HdfsTarget`, a subclass of :py:clas
 """
 
 import luigi
-import random
 import warnings
 from luigi.target import FileSystemTarget
 from luigi.contrib.hdfs.config import tmppath
 from luigi.contrib.hdfs import format as hdfs_format
 from luigi.contrib.hdfs import clients as hdfs_clients
 from urllib import parse as urlparse
+import secrets
 
 
 class HdfsTarget(FileSystemTarget):
@@ -177,7 +177,7 @@ class HdfsTarget(FileSystemTarget):
             return False
 
     def _is_writable(self, path):
-        test_path = path + '.test_write_access-%09d' % random.randrange(10_000_000_000)
+        test_path = path + '.test_write_access-%09d' % secrets.SystemRandom().randrange(10_000_000_000)
         try:
             self.fs.touchz(test_path)
             self.fs.remove(test_path, recursive=False)
