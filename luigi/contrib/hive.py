@@ -31,6 +31,7 @@ import luigi.contrib.hadoop
 from luigi.contrib.hdfs import get_autoconfig_client
 from luigi.target import FileAlreadyExists, FileSystemTarget
 from luigi.task import flatten
+from security import safe_command
 
 logger = logging.getLogger('luigi-interface')
 
@@ -70,7 +71,7 @@ def run_hive(args, check_return_code=True):
     so we need an option to ignore the return code and just return stdout for parsing
     """
     cmd = load_hive_cmd() + args
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = safe_command.run(subprocess.Popen, cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if check_return_code and p.returncode != 0:
         raise HiveCommandError("Hive command: {0} failed with error code: {1}".format(" ".join(cmd), p.returncode),

@@ -23,6 +23,7 @@ import re
 import locale
 import tempfile
 import warnings
+from security import safe_command
 
 
 class FileWrapper:
@@ -98,7 +99,7 @@ class InputPipeProcessWrapper:
             # non-Python subprocesses expect.
             signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
-        return subprocess.Popen(command,
+        return safe_command.run(subprocess.Popen, command,
                                 stdin=self._input_pipe,
                                 stdout=subprocess.PIPE,
                                 preexec_fn=subprocess_setup,
@@ -175,7 +176,7 @@ class OutputPipeProcessWrapper:
         self.closed = False
         self._command = command
         self._output_pipe = output_pipe
-        self._process = subprocess.Popen(command,
+        self._process = safe_command.run(subprocess.Popen, command,
                                          stdin=subprocess.PIPE,
                                          stdout=output_pipe,
                                          close_fds=True)
